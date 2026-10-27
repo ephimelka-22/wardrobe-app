@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wardrobe Lookbook</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Wardrobe">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#e9ecef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121519" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>
+/* Fonts ship with the app (SIL Open Font License), so no request goes to a font service. */
+@font-face { font-family: "Big Shoulders Display"; font-weight: 600 800; font-display: swap; src: url(fonts/big-shoulders-display.woff2) format("woff2") }
+@font-face { font-family: "Figtree"; font-weight: 400 600; font-display: swap; src: url(fonts/figtree.woff2) format("woff2") }
+@font-face { font-family: "IBM Plex Mono"; font-weight: 400; font-display: swap; src: url(fonts/ibm-plex-mono-400.woff2) format("woff2") }
+@font-face { font-family: "IBM Plex Mono"; font-weight: 500; font-display: swap; src: url(fonts/ibm-plex-mono-500.woff2) format("woff2") }
+/* Layout: sticky tab bar over a single column; looks are flat-lay strips, closet is a swatch grid like a hanging rail. */
+:root {
+  --bg: #e9ecef;
+  --surface: #ffffff;
+  --swatch: #f6f7f8;
+  --ink: #16191d;
+  --muted: #5c6670;
+  --line: #d3d8de;
+  --accent: #27408b;        /* raw indigo denim */
+  --accent-ink: #ffffff;
+  --accent-soft: #dfe5f4;
+  --good: #1f7a4d;
+  --bad: #a3322a;
+  --spring: #4f8a3c; --summer: #c08a12; --autumn: #a8521f; --winter: #3c6e9e;
+  --f-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --f-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-tag: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121519; --surface: #1b1f24; --swatch: #e4e7ea; --ink: #e8ebee; --muted: #9aa4ae; --line: #2d333a;
+  --accent: #8fa6ec; --accent-ink: #0f1420; --accent-soft: #23304f; --good: #5fc28f; --bad: #ef8a80;
+  --spring: #8cc777; --summer: #e6b84a; --autumn: #e48b55; --winter: #82b2e0; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121519; --surface: #1b1f24; --swatch: #e4e7ea; --ink: #e8ebee; --muted: #9aa4ae; --line: #2d333a;
+  --accent: #8fa6ec; --accent-ink: #0f1420; --accent-soft: #23304f; --good: #5fc28f; --bad: #ef8a80;
+  --spring: #8cc777; --summer: #e6b84a; --autumn: #e48b55; --winter: #82b2e0; color-scheme: dark }
+
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px) }
+body { margin: 0; -webkit-text-size-adjust: 100% }
+img { max-width: 100% }
+* { box-sizing: border-box }
+[hidden] { display: none !important }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5 }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg) }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+button, input, select, textarea { font: inherit; color: inherit }
+button { cursor: pointer }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+h1, h2, h3 { text-wrap: balance; margin: 0 }
+
+header.top { padding-block: 28px 12px }
+.brand { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px }
+h1 { font-family: var(--f-display); font-weight: 800; font-size: clamp(2.4rem, 7vw, 3.6rem); line-height: .9; letter-spacing: .01em; text-transform: uppercase }
+.counts { font-family: var(--f-tag); font-size: 12px; color: var(--muted); letter-spacing: .04em; display: flex; flex-wrap: wrap; gap: 4px 14px }
+.counts b { color: var(--ink); font-weight: 500 }
+
+nav.tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line) }
+nav.tabs .wrap { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none }
+nav.tabs button { border: 0; background: none; padding: 12px 14px 10px; font-family: var(--f-display); font-weight: 600; font-size: 1.15rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border-bottom: 3px solid transparent; white-space: nowrap }
+nav.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent) }
+
+main { padding-block: 22px 60px }
+section.view { display: grid; gap: 26px }
+.lede { color: var(--muted); max-width: 62ch; margin: 0 }
+h2 { font-family: var(--f-display); font-weight: 800; font-size: 1.8rem; text-transform: uppercase; letter-spacing: .02em; line-height: 1 }
+h3 { font-size: 1.05rem; font-weight: 600 }
+.eyebrow { font-family: var(--f-tag); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted) }
+
+.controls { display: grid; gap: 12px }
+.ctl-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px }
+.ctl-row .eyebrow { min-width: 78px }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 13px; font-size: 13.5px; font-weight: 500 }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink) }
+.chip:hover { border-color: var(--muted) }
+
+.season-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex: none }
+.s-spring { background: var(--spring) } .s-summer { background: var(--summer) } .s-autumn { background: var(--autumn) } .s-winter { background: var(--winter) }
+
+/* Look card */
+.looks { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 18px }
+.look { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; min-width: 0 }
+.look.hero { grid-column: 1 / -1 }
+.flatlay { background: var(--swatch); display: flex; gap: 6px; padding: 14px; align-items: flex-end; justify-content: center; flex-wrap: wrap; min-height: 150px }
+.flatlay figure { margin: 0; display: grid; justify-items: center; gap: 3px }
+.flatlay img { height: 118px; width: auto; max-width: 140px; object-fit: contain; display: block }
+.look.hero .flatlay img { height: 170px; max-width: 210px }
+.flatlay figcaption { font-family: var(--f-tag); font-size: 10px; color: #5c6670 }
+.look-body { padding: 14px 16px 6px; display: grid; gap: 10px; align-content: start; min-width: 0 }
+.look-head { display: flex; justify-content: space-between; align-items: start; gap: 10px }
+.look-head h3 { font-family: var(--f-display); font-weight: 800; font-size: 1.45rem; text-transform: uppercase; letter-spacing: .02em; line-height: 1 }
+.seasons { display: flex; gap: 4px; padding-top: 4px; flex: none }
+.breakdown { margin: 0; padding: 0; list-style: none; display: grid; gap: 3px; font-size: 13.5px }
+.breakdown li { display: grid; grid-template-columns: 74px 1fr; gap: 8px }
+.breakdown .slot { font-family: var(--f-tag); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding-top: 2px }
+.breakdown button { background: none; border: 0; padding: 0; text-align: left; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px }
+.notes { font-size: 13.5px; margin: 0; display: grid; gap: 4px }
+.notes p { margin: 0 }
+.notes strong { font-weight: 600 }
+.gap { font-size: 13px; color: var(--muted); border-left: 2px solid var(--line); padding-left: 10px; margin: 0 }
+.look-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 16px 14px; border-top: 1px dashed var(--line) }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 4px; padding: 5px 11px; font-size: 13px; font-weight: 500 }
+.btn:hover { border-color: var(--muted) }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
+.btn.on-good { border-color: var(--good); color: var(--good) }
+.btn.on-bad { border-color: var(--bad); color: var(--bad) }
+.btn:disabled { opacity: .45; cursor: not-allowed }
+.meta { font-family: var(--f-tag); font-size: 11px; color: var(--muted); margin-left: auto }
+.note-row { display: flex; gap: 6px; width: 100% }
+.note-row input { flex: 1; min-width: 0; border: 1px solid var(--line); background: var(--bg); border-radius: 4px; padding: 5px 9px; font-size: 13px }
+
+/* Formulas */
+.formulas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 12px }
+.formula { border-top: 2px solid var(--ink); padding-top: 10px; display: grid; gap: 4px }
+.formula b { font-family: var(--f-display); font-size: 1.2rem; text-transform: uppercase; letter-spacing: .03em }
+.formula p { margin: 0; font-size: 13.5px; color: var(--muted) }
+
+/* Colour tips */
+.tips { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); gap: 12px }
+.tip { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; display: grid; gap: 8px; align-content: start; min-width: 0 }
+.tip b { font-weight: 600 }
+.tip p { margin: 0; font-size: 13.5px; color: var(--muted) }
+.tip-row { display: flex; flex-wrap: wrap; gap: 6px }
+.tip-row button { border: 0; padding: 4px; background: var(--swatch); border-radius: 4px; width: 54px; height: 54px; display: block; overflow: hidden }
+.tip-row img { width: 100%; height: 100%; object-fit: contain; display: block }
+
+/* Closet grid */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(46%, 158px), 1fr)); gap: 12px }
+.item { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; display: grid; grid-template-rows: auto 1fr; text-align: left; padding: 0; position: relative }
+.item:hover { border-color: var(--muted) }
+.item .ph { background: var(--swatch); aspect-ratio: 1; max-width: 100%; display: grid; place-items: center; padding: 10px }
+.item .ph img { max-height: 100%; max-width: 100%; object-fit: contain }
+.item .cap { padding: 8px 10px 10px; display: grid; gap: 4px; min-width: 0 }
+.item .nm { font-size: 13.5px; font-weight: 600; line-height: 1.25 }
+.tagline { display: flex; align-items: center; gap: 4px; flex-wrap: wrap }
+.no { font-family: var(--f-tag); font-size: 10.5px; color: var(--muted); letter-spacing: .04em }
+.item.picked { outline: 3px solid var(--accent); outline-offset: -3px }
+.item .tick { position: absolute; top: 8px; right: 8px; background: var(--accent); color: var(--accent-ink); font-family: var(--f-tag); font-size: 11px; border-radius: 3px; padding: 1px 6px }
+
+/* Care label tag */
+.label { font-family: var(--f-tag); font-size: 11px; border: 1px solid var(--line); border-radius: 3px; padding: 1px 6px; color: var(--muted); white-space: nowrap }
+
+/* Drawer */
+dialog { border: 0; padding: 0; border-radius: 8px; background: var(--surface); color: var(--ink); width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 40px) }
+dialog::backdrop { background: rgb(10 12 15 / .55) }
+.dlg { display: grid; gap: 14px; padding: 0 0 18px }
+.dlg .ph { background: var(--swatch); display: grid; place-items: center; padding: 18px }
+.dlg .ph img { max-height: 300px; object-fit: contain }
+.dlg .in { padding: 0 18px; display: grid; gap: 12px }
+.specs { display: grid; grid-template-columns: 110px 1fr; gap: 6px 10px; margin: 0; font-size: 14px }
+.specs dt { font-family: var(--f-tag); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); padding-top: 2px }
+.specs dd { margin: 0 }
+.close { position: sticky; top: 0; float: right; margin: 10px 10px 0 0; z-index: 1 }
+
+/* Hub */
+.hub { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 22px; align-items: start }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 18px; display: grid; gap: 14px; min-width: 0 }
+.form { display: grid; gap: 12px }
+.field { display: grid; gap: 5px }
+.field label, .field .lbl { font-family: var(--f-tag); font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted) }
+.field input[type=text], .field select, .field textarea { border: 1px solid var(--line); background: var(--bg); border-radius: 4px; padding: 8px 10px; width: 100% }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
+.checks { display: flex; flex-wrap: wrap; gap: 6px }
+.checks label { display: inline-flex; gap: 5px; align-items: center; border: 1px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 13px; font-family: var(--f-body); text-transform: none; letter-spacing: 0; color: var(--ink) }
+.status { font-size: 13px; color: var(--muted); min-height: 1.2em; margin: 0 }
+.status.err { color: var(--bad) }
+.status.ok { color: var(--good) }
+.offline { background: var(--accent-soft); border-radius: 6px; padding: 10px 14px; font-size: 13.5px; margin: 0 }
+.picked-strip { display: flex; flex-wrap: wrap; gap: 6px; min-height: 64px; background: var(--swatch); border-radius: 4px; padding: 8px; align-items: center }
+.picked-strip img { height: 56px; width: auto; max-width: 70px; object-fit: contain }
+.picked-strip .empty { color: #5c6670; font-size: 13px }
+.stats { display: grid; gap: 8px; font-size: 14px }
+.statrow { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px solid var(--line); padding-bottom: 6px }
+.statrow span:last-child { font-family: var(--f-tag); font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap }
+.rot { display: flex; flex-wrap: wrap; gap: 6px }
+.rot img { height: 54px; width: 54px; object-fit: contain; background: var(--swatch); border-radius: 4px; padding: 4px }
+.empty-note { color: var(--muted); font-size: 14px; margin: 0 }
+.welcome { padding-block: 12px 60px; max-width: 640px }
+.season-head { display: flex; align-items: center; gap: 10px }
+.season-head p { margin: 0; color: var(--muted); font-size: 14px }
+@media (max-width: 520px) {
+  .two { grid-template-columns: 1fr }
+  .look.hero .flatlay img { height: 118px; max-width: 140px }
+  .flatlay img { height: 92px; max-width: 110px }
+}
+@media (prefers-reduced-motion: no-preference) { .look, .item { transition: border-color .15s } }
+</style>
+</head>
+<body>
+
+<header class="top wrap">
+  <div class="brand">
+    <h1>Wardrobe Lookbook</h1>
+    <div class="counts" id="counts"></div>
+  </div>
+</header>
+
+<section class="wrap welcome" id="welcome" hidden>
+  <div class="panel">
+    <h2>Load your wardrobe</h2>
+    <p class="lede">Your clothes, photos and outfit looks aren't stored online. They come from your private wardrobe file, which is copied into this phone's storage and never uploaded. Load it once, or restore a backup you saved earlier.</p>
+    <div class="ctl-row">
+      <label class="btn primary" for="wf-file">Load wardrobe file</label>
+      <input type="file" id="wf-file" accept="application/json,.json" hidden>
+      <label class="btn" for="bk-file">Restore from backup</label>
+    </div>
+    <p class="status" id="wf-status"></p>
+  </div>
+</section>
+
+<nav class="tabs" aria-label="Sections">
+  <div class="wrap" role="tablist">
+    <button role="tab" id="t-today" aria-selected="true" data-view="today">What to wear</button>
+    <button role="tab" id="t-seasons" aria-selected="false" data-view="seasons">Seasons</button>
+    <button role="tab" id="t-closet" aria-selected="false" data-view="closet">Closet</button>
+    <button role="tab" id="t-hub" aria-selected="false" data-view="hub">Hub</button>
+  </div>
+</nav>
+
+<main class="wrap">
+  <!-- WHAT TO WEAR -->
+  <section class="view" id="v-today">
+    <div class="controls">
+      <div class="ctl-row"><span class="eyebrow">Season</span><span id="today-season"></span></div>
+      <div class="ctl-row"><span class="eyebrow">Occasion</span><span id="today-occ"></span></div>
+    </div>
+    <div class="looks" id="today-looks"></div>
+    <div style="display:grid;gap:12px" id="colour-guide" hidden>
+      <h2>Colours that work for you</h2>
+      <div class="tips" id="tips"></div>
+      <p class="gap" id="tip-gaps"></p>
+      <p class="gap" id="tip-undertone"></p>
+    </div>
+    <div style="display:grid;gap:12px">
+      <h2>Quick formulas</h2>
+      <div class="formulas" id="formulas"></div>
+    </div>
+  </section>
+
+  <!-- SEASONS -->
+  <section class="view" id="v-seasons" hidden>
+    <div class="ctl-row" id="season-tabs"></div>
+    <div class="season-head" id="season-head"></div>
+    <div class="looks" id="season-looks"></div>
+    <div style="display:grid;gap:12px">
+      <h2 id="season-items-h">In season</h2>
+      <div class="grid" id="season-items"></div>
+    </div>
+  </section>
+
+  <!-- CLOSET -->
+  <section class="view" id="v-closet" hidden>
+    <div class="controls">
+      <div class="ctl-row"><span class="eyebrow">Type</span><span id="closet-cat"></span></div>
+      <div class="ctl-row"><span class="eyebrow">Season</span><span id="closet-season"></span></div>
+    </div>
+    <div class="grid" id="closet-grid"></div>
+  </section>
+
+  <!-- HUB -->
+  <section class="view" id="v-hub" hidden>
+    <p class="offline" id="offline" hidden>This browser isn't letting the app save anything. Turn off Private Browsing, or open the app from its Home Screen icon.</p>
+    <div class="hub">
+      <div class="panel">
+        <h2>Build a look</h2>
+        <p class="lede">Tap pieces below to add them, then name and save the look. Saved looks show up under What to wear and Seasons.</p>
+        <div class="picked-strip" id="pick-strip"></div>
+        <form class="form" id="look-form">
+          <div class="two">
+            <div class="field"><label for="lk-name">Look name</label><input type="text" id="lk-name" required maxlength="60" placeholder="e.g. Sunday market"></div>
+            <div class="field"><label for="lk-occ">Occasion</label>
+              <select id="lk-occ"><option value="everyday">Everyday</option><option value="smart">Smart casual</option><option value="night">Night out</option><option value="active">Sport &amp; lounge</option></select></div>
+          </div>
+          <div class="field"><span class="lbl">Seasons</span><div class="checks" id="lk-seasons"></div></div>
+          <div class="field"><label for="lk-notes">Styling notes</label><input type="text" id="lk-notes" maxlength="200" placeholder="e.g. Tuck the front of the shirt"></div>
+          <div class="ctl-row"><button class="btn primary" type="submit" id="lk-save">Save look</button><button class="btn" type="button" id="lk-clear">Clear picks</button></div>
+          <p class="status" id="lk-status"></p>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h2>Add a new piece</h2>
+        <form class="form" id="item-form">
+          <div class="field"><label for="it-photo">Photo</label><input type="file" id="it-photo" accept="image/*"></div>
+          <div class="field"><label for="it-name">Name</label><input type="text" id="it-name" required maxlength="60" placeholder="e.g. Olive overshirt"></div>
+          <div class="two">
+            <div class="field"><label for="it-cat">Type</label>
+              <select id="it-cat"><option>Tops</option><option>Bottoms</option><option>Outerwear</option><option>Shoes</option><option>Accessories</option><option>Full-body</option></select></div>
+            <div class="field"><label for="it-weight">Fabric weight</label>
+              <select id="it-weight"><option value="light">Light</option><option value="mid" selected>Mid</option><option value="heavy">Heavy</option></select></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="it-color">Main colour</label><input type="text" id="it-color" maxlength="30" placeholder="e.g. Olive"></div>
+            <div class="field"><label for="it-style">Dress level</label>
+              <select id="it-style"><option value="casual">Casual</option><option value="smart">Smart casual</option><option value="formal">Business / formal</option><option value="active">Athletic / lounge</option></select></div>
+          </div>
+          <div class="field"><span class="lbl">Seasons</span><div class="checks" id="it-seasons"></div></div>
+          <div class="ctl-row"><button class="btn primary" type="submit" id="it-save">Add to closet</button></div>
+          <p class="status" id="it-status"></p>
+        </form>
+      </div>
+    </div>
+
+    <div class="hub">
+      <div class="panel">
+        <h2>Your saved looks</h2>
+        <div class="looks" id="saved-looks"></div>
+      </div>
+      <div class="panel">
+        <h2>Rotation</h2>
+        <div class="stats" id="stats"></div>
+        <div style="display:grid;gap:8px">
+          <span class="eyebrow">Not in any worn look yet</span>
+          <div class="rot" id="unworn"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Backup</h2>
+        <p class="lede">Everything you add lives only on this phone. Save a backup now and then, and keep it in Files or iCloud Drive. If you delete the app or move to a new phone, restore from it.</p>
+        <p class="status" id="bk-last"></p>
+        <div class="ctl-row">
+          <button class="btn primary" type="button" id="bk-save">Save backup</button>
+          <label class="btn" for="bk-file">Restore from backup</label>
+          <input type="file" id="bk-file" accept="application/json,.json" hidden>
+        </div>
+        <p class="status" id="bk-status"></p>
+      </div>
+      <div class="panel">
+        <h2>Wardrobe file</h2>
+        <p class="lede">Your pieces, photos, looks and colour guide come from a private file and live only on this phone. Loading a newer file updates them and keeps everything you added here.</p>
+        <p class="status" id="pf-state"></p>
+        <div class="ctl-row">
+          <label class="btn primary" for="pf-file">Load wardrobe file</label>
+          <input type="file" id="pf-file" accept="application/json,.json" hidden>
+        </div>
+        <p class="status" id="pf-status"></p>
+      </div>
+    </div>
+
+    <div style="display:grid;gap:12px">
+      <h2>Pick pieces</h2>
+      <div class="ctl-row"><span class="eyebrow">Type</span><span id="pick-cat"></span></div>
+      <div class="grid" id="pick-grid"></div>
+    </div>
+  </section>
+</main>
+
+<dialog id="dlg"></dialog>
+
+<script>
+// ---------- Catalog ----------
+// Your pieces, looks and photos are not in this file. They come from your private wardrobe file,
+// loaded once on the phone and kept in on-phone storage (see "Private wardrobe file" below).
+// Item: {n, name, cat, color, weight: light|mid|heavy, style: [casual|smart|active], seasons: [sp su au wi], desc, photo}
+// Look: {id, name, s: "sp su", occ: everyday|smart|night|active, items: [item numbers], notes, vibe}
+const S = { sp: "Spring", su: "Summer", au: "Autumn", wi: "Winter" };
+const SKEY = { sp: "spring", su: "summer", au: "autumn", wi: "winter" };
+const OCC = { everyday: "Everyday", smart: "Smart casual", night: "Night out", active: "Sport & lounge" };
+let ITEMS = [], LOOKS = [], FORMULAS = [], GAPS = {};
+// Personal colour guide, also from the private file: {colourTips: [[heading, why, [item numbers]]], colourGaps, undertone, lookVibes: {lookId: text}}
+let personal = null;
+
+// ---------- State ----------
+const state = {
+  view: "today",
+  todaySeason: currentSeason(),
+  todayOcc: "all",
+  seasonTab: currentSeason(),
+  closetCat: "All", closetSeason: "all",
+  pickCat: "All", picks: [],
+  customItems: [], customLooks: [], feedback: {}, wears: [],
+};
+let db = null;
+
+function currentSeason() {
+  const m = new Date().getMonth(); // northern hemisphere
+  return m <= 1 || m === 11 ? "wi" : m <= 4 ? "sp" : m <= 7 ? "su" : "au";
+}
+const $ = (s, r = document) => r.querySelector(s);
+const el = (tag, attrs = {}, ...kids) => {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") e.className = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else if (v === true) e.setAttribute(k, ""); else if (v !== false && v != null) e.setAttribute(k, v);
+  }
+  for (const k of kids.flat()) if (k != null) e.append(k.nodeType ? k : document.createTextNode(k));
+  return e;
+};
+const allItems = () => ITEMS.concat(state.customItems);
+const itemById = id => allItems().find(i => i.id === id);
+const lookItems = lk => lk.items.map(x => typeof x === "number" ? itemById("i" + x) : itemById(x)).filter(Boolean);
+const allLooks = () => LOOKS.map(l => ({ ...l, seasons: l.s.split(" "), builtIn: true })).concat(state.customLooks);
+const slotOf = (it, i, arr) => it.cat === "Outerwear" ? "Outer" : it.cat === "Tops" ? (arr.some((o, j) => j > i && o.cat === "Tops") ? "Layer" : "Top") : it.cat === "Bottoms" ? "Bottom" : it.cat === "Shoes" ? "Shoes" : it.cat === "Accessories" ? "Extra" : "Piece";
+const dots = seasons => el("span", { class: "seasons", title: seasons.map(s => S[s]).join(", ") }, ["sp","su","au","wi"].filter(s => seasons.includes(s)).map(s => el("span", { class: "season-dot s-" + SKEY[s] })));
+
+// Ranking: rating and how recently a look was worn adjust its position.
+function lookScore(lk) {
+  const fb = state.feedback[lk.id];
+  let sc = 0;
+  if (fb?.rating === "up") sc += 3;
+  if (fb?.rating === "down") sc -= 6;
+  const last = lastWorn(lk.id);
+  if (last) { const days = (Date.now() - last) / 864e5; if (days < 7) sc -= 4; else if (days < 14) sc -= 2; }
+  // items in disliked looks drift down slightly
+  return sc;
+}
+function lastWorn(id) { let t = 0; for (const w of state.wears) if (w.look === id && w.at > t) t = w.at; return t; }
+function wearCount(id) { return state.wears.filter(w => w.look === id).length; }
+
+// ---------- Look card ----------
+function lookCard(lk, hero = false) {
+  const its = lookItems(lk);
+  const fb = state.feedback[lk.id] || {};
+  const card = el("article", { class: "look" + (hero ? " hero" : "") },
+    el("div", { class: "flatlay" }, its.map(it => el("figure", {}, el("img", { src: it.img, alt: it.name, loading: "lazy" }), el("figcaption", {}, it.n ? "No. " + String(it.n).padStart(2, "0") : "New")))),
+    el("div", { class: "look-body" },
+      el("div", { class: "look-head" },
+        el("div", {}, el("div", { class: "eyebrow" }, (hero ? "Today's pick · " : "") + (OCC[lk.occ] || "Saved look")), el("h3", {}, lk.name)),
+        dots(lk.seasons)),
+      el("ul", { class: "breakdown" }, its.map((it, i) => el("li", {}, el("span", { class: "slot" }, slotOf(it, i, its)), el("button", { type: "button", onclick: () => openItem(it) }, it.name)))),
+      el("div", { class: "notes" },
+        lk.notes ? el("p", {}, el("strong", {}, "How to wear it. "), lk.notes) : null,
+        (personal?.lookVibes?.[lk.id] || lk.vibe) ? el("p", {}, el("strong", {}, "Why it works. "), personal?.lookVibes?.[lk.id] || lk.vibe) : null),
+      GAPS[lk.id] ? el("p", { class: "gap" }, "Finishing touch: " + GAPS[lk.id]) : null),
+    el("div", { class: "look-foot" },
+      el("button", { class: "btn primary", type: "button", disabled: !db, onclick: () => logWear(lk) }, "Wore it today"),
+      el("button", { class: "btn" + (fb.rating === "up" ? " on-good" : ""), type: "button", "aria-pressed": String(fb.rating === "up"), disabled: !db, onclick: () => rate(lk, fb.rating === "up" ? null : "up") }, "Love it"),
+      el("button", { class: "btn" + (fb.rating === "down" ? " on-bad" : ""), type: "button", "aria-pressed": String(fb.rating === "down"), disabled: !db, onclick: () => rate(lk, fb.rating === "down" ? null : "down") }, "Not for me"),
+      el("span", { class: "meta" }, wearCount(lk.id) ? "Worn " + wearCount(lk.id) + "×" : ""),
+      el("form", { class: "note-row", onsubmit: e => { e.preventDefault(); const v = e.target.elements[0].value.trim(); saveNote(lk, v); } },
+        el("input", { type: "text", id: "note-" + lk.id, maxlength: "200", placeholder: "Feedback, e.g. felt too warm", value: fb.note || "", disabled: !db, "aria-label": "Feedback on " + lk.name }),
+        el("button", { class: "btn", type: "submit", disabled: !db }, "Save note")),
+      lk.builtIn ? null : el("button", { class: "btn", type: "button", disabled: !db, onclick: () => deleteLook(lk) }, "Delete look")));
+  return card;
+}
+
+// ---------- Item card & drawer ----------
+function itemCard(it, onclick, picked = false) {
+  return el("button", { class: "item" + (picked ? " picked" : ""), type: "button", onclick, "aria-pressed": picked ? "true" : null },
+    el("div", { class: "ph" }, el("img", { src: it.img, alt: "", loading: "lazy" })),
+    picked ? el("span", { class: "tick" }, "Picked") : null,
+    el("div", { class: "cap" },
+      el("span", { class: "nm" }, it.name),
+      el("span", { class: "tagline" }, el("span", { class: "no" }, it.n ? "No. " + String(it.n).padStart(2, "0") : "New"), el("span", { class: "label" }, it.weight), dots(it.seasons))));
+}
+function openItem(it) {
+  const d = $("#dlg");
+  const looks = allLooks().filter(l => lookItems(l).some(x => x.id === it.id));
+  d.replaceChildren(el("div", { class: "dlg" },
+    el("button", { class: "btn close", type: "button", onclick: () => d.close() }, "Close"),
+    el("div", { class: "ph" }, el("img", { src: it.img, alt: it.name })),
+    el("div", { class: "in" },
+      el("div", {}, el("div", { class: "eyebrow" }, (it.n ? "No. " + String(it.n).padStart(2, "0") + " · " : "") + it.cat), el("h2", {}, it.name)),
+      it.desc ? el("p", { class: "lede" }, it.desc) : null,
+      el("dl", { class: "specs" },
+        el("dt", {}, "Colour"), el("dd", {}, it.color || "—"),
+        el("dt", {}, "Fabric weight"), el("dd", {}, { light: "Lightweight", mid: "Mid-weight", heavy: "Heavyweight" }[it.weight] || it.weight),
+        el("dt", {}, "Seasons"), el("dd", {}, it.seasons.map(s => S[s]).join(", ")),
+        el("dt", {}, "Dress level"), el("dd", {}, it.style.map(s => ({ casual: "Casual", smart: "Smart casual", formal: "Business / formal", active: "Athletic / lounge" })[s]).join(", ")),
+        el("dt", {}, "In looks"), el("dd", {}, looks.length ? looks.map(l => l.name).join(", ") : "None yet. Build one in the Hub.")),
+      it.custom ? el("button", { class: "btn", type: "button", disabled: !db, onclick: () => { deleteItem(it); d.close(); } }, "Remove from closet") : null)));
+  d.showModal();
+}
+
+// ---------- Views ----------
+function chips(host, options, current, onpick) {
+  host.replaceChildren(...options.map(([v, label, dot]) => el("button", { class: "chip", type: "button", "aria-pressed": String(v === current), onclick: () => onpick(v) }, dot ? el("span", { class: "season-dot s-" + SKEY[v], style: "margin-right:6px" }) : null, label)));
+}
+const seasonOpts = withAll => (withAll ? [["all", "All seasons"]] : []).concat(["sp","su","au","wi"].map(s => [s, S[s], true]));
+
+function renderToday() {
+  chips($("#today-season"), seasonOpts(false), state.todaySeason, v => { state.todaySeason = v; renderToday(); });
+  chips($("#today-occ"), [["all", "Any"]].concat(Object.entries(OCC)), state.todayOcc, v => { state.todayOcc = v; renderToday(); });
+  const list = allLooks().filter(l => l.seasons.includes(state.todaySeason) && (state.todayOcc === "all" || l.occ === state.todayOcc))
+    .map((l, i) => ({ l, sc: lookScore(l), i })).sort((a, b) => b.sc - a.sc || a.i - b.i).map(x => x.l);
+  const host = $("#today-looks");
+  host.replaceChildren(...(list.length ? list.map((l, i) => lookCard(l, i === 0)) : [el("p", { class: "empty-note" }, "No looks for this mix yet. Try another occasion, or build one in the Hub.")]));
+  $("#colour-guide").hidden = !personal?.colourTips?.length;
+  $("#tips").replaceChildren(...(personal?.colourTips || []).map(([h, p, nums]) => el("div", { class: "tip" }, el("b", {}, h), el("p", {}, p),
+    el("div", { class: "tip-row" }, (nums || []).map(n => itemById("i" + n)).filter(Boolean).map(it => el("button", { type: "button", title: it.name, "aria-label": it.name, onclick: () => openItem(it) }, el("img", { src: it.img, alt: "", loading: "lazy" })))))));
+  $("#tip-gaps").textContent = personal?.colourGaps || "";
+  $("#tip-undertone").textContent = personal?.undertone || "";
+  $("#formulas").replaceChildren(...FORMULAS.map(([t, p]) => el("div", { class: "formula" }, el("b", {}, t), el("p", {}, p))));
+}
+
+const SEASON_COPY = {
+  sp: "Light layers over tees, lighter colours and fabrics.",
+  su: "Lightweight fabrics and short sleeves. No heavy knits or boots.",
+  au: "Layers come back: knits and jackets over tees, warmer shoes.",
+  wi: "Heavy outer layers over knits, warmer trousers, weatherproof shoes.",
+};
+function renderSeasons() {
+  chips($("#season-tabs"), seasonOpts(false), state.seasonTab, v => { state.seasonTab = v; renderSeasons(); });
+  const s = state.seasonTab;
+  $("#season-head").replaceChildren(el("span", { class: "season-dot s-" + SKEY[s], style: "width:14px;height:14px" }), el("h2", {}, S[s]), el("p", {}, SEASON_COPY[s]));
+  const looks = allLooks().filter(l => l.seasons.includes(s));
+  $("#season-looks").replaceChildren(...looks.map(l => lookCard(l)));
+  const its = allItems().filter(i => i.seasons.includes(s));
+  $("#season-items-h").textContent = S[s] + " pieces · " + its.length;
+  $("#season-items").replaceChildren(...its.map(it => itemCard(it, () => openItem(it))));
+}
+
+const CATS = ["All", "Tops", "Bottoms", "Outerwear", "Shoes", "Accessories", "Full-body"];
+const catOpts = () => CATS.filter(c => c === "All" || allItems().some(i => i.cat === c)).map(c => [c, c === "All" ? "All · " + allItems().length : c + " · " + allItems().filter(i => i.cat === c).length]);
+function renderCloset() {
+  chips($("#closet-cat"), catOpts(), state.closetCat, v => { state.closetCat = v; renderCloset(); });
+  chips($("#closet-season"), seasonOpts(true), state.closetSeason, v => { state.closetSeason = v; renderCloset(); });
+  const its = allItems().filter(i => (state.closetCat === "All" || i.cat === state.closetCat) && (state.closetSeason === "all" || i.seasons.includes(state.closetSeason)));
+  $("#closet-grid").replaceChildren(...its.map(it => itemCard(it, () => openItem(it))));
+}
+
+function renderHub() {
+  $("#offline").hidden = !!db;
+  for (const b of ["#lk-save", "#it-save"]) $(b).disabled = !db;
+  $("#it-photo").disabled = !db;
+  const strip = $("#pick-strip");
+  const picks = state.picks.map(itemById).filter(Boolean);
+  strip.replaceChildren(...(picks.length ? picks.map(it => el("img", { src: it.img, alt: it.name, title: it.name })) : [el("span", { class: "empty" }, "No pieces picked yet")]));
+  chips($("#pick-cat"), catOpts(), state.pickCat, v => { state.pickCat = v; renderHub(); });
+  const its = allItems().filter(i => state.pickCat === "All" || i.cat === state.pickCat);
+  $("#pick-grid").replaceChildren(...its.map(it => itemCard(it, () => { togglePick(it.id); }, state.picks.includes(it.id))));
+  $("#saved-looks").replaceChildren(...(state.customLooks.length ? state.customLooks.map(l => lookCard(l)) : [el("p", { class: "empty-note" }, "Looks you save will appear here.")]));
+  // rotation stats
+  const worn = allLooks().map(l => [l, wearCount(l.id)]).filter(x => x[1]).sort((a, b) => b[1] - a[1]);
+  const loved = allLooks().filter(l => state.feedback[l.id]?.rating === "up").length;
+  const disliked = allLooks().filter(l => state.feedback[l.id]?.rating === "down").length;
+  $("#stats").replaceChildren(
+    el("div", { class: "statrow" }, el("span", {}, "Looks worn"), el("span", {}, String(state.wears.length) + " times")),
+    el("div", { class: "statrow" }, el("span", {}, "Loved / not for me"), el("span", {}, loved + " / " + disliked)),
+    ...(worn.length ? worn.slice(0, 5).map(([l, c]) => el("div", { class: "statrow" }, el("span", {}, l.name), el("span", {}, c + "×"))) : [el("p", { class: "empty-note" }, "Tap Wore it today on a look to start tracking your rotation.")]));
+  const wornIds = new Set(state.wears.flatMap(w => { const l = allLooks().find(x => x.id === w.look); return l ? lookItems(l).map(i => i.id) : []; }));
+  const unworn = allItems().filter(i => !wornIds.has(i.id));
+  $("#unworn").replaceChildren(...unworn.map(it => el("img", { src: it.img, alt: it.name, title: it.name, loading: "lazy" })));
+}
+
+function renderCounts() {
+  const its = allItems(); const c = k => its.filter(i => i.cat === k).length;
+  $("#counts").replaceChildren(el("span", {}, el("b", {}, String(its.length)), " pieces"), el("span", {}, c("Tops") + " tops"), el("span", {}, c("Bottoms") + " bottoms"), el("span", {}, c("Outerwear") + " outerwear"), el("span", {}, c("Shoes") + " shoes"), el("span", {}, el("b", {}, String(allLooks().length)), " looks"));
+}
+function render() {
+  // Until a wardrobe file is loaded (or a backup restored), show only the first-run screen.
+  const ready = ITEMS.length > 0;
+  $("#welcome").hidden = !state.ready || ready;
+  for (const s of ["nav.tabs", "main", "#counts"]) $(s).hidden = !ready;
+  if (!ready) return;
+  renderCounts();
+  ({ today: renderToday, seasons: renderSeasons, closet: renderCloset, hub: renderHub })[state.view]();
+}
+function setView(v) {
+  state.view = v;
+  for (const b of document.querySelectorAll("nav.tabs button")) b.setAttribute("aria-selected", String(b.dataset.view === v));
+  for (const s of document.querySelectorAll("section.view")) s.hidden = s.id !== "v-" + v;
+  try { localStorage.setItem("wl-view", v); } catch {}
+  render();
+}
+document.querySelectorAll("nav.tabs button").forEach(b => b.addEventListener("click", () => { setView(b.dataset.view); history.replaceState(null, "", "#" + b.dataset.view); }));
+
+// ---------- Hub forms ----------
+function seasonChecks(host, prefix) {
+  host.replaceChildren(...["sp","su","au","wi"].map(s => el("label", {}, el("input", { type: "checkbox", id: prefix + s, value: s }), el("span", { class: "season-dot s-" + SKEY[s] }), S[s])));
+}
+seasonChecks($("#lk-seasons"), "lk-s-"); seasonChecks($("#it-seasons"), "it-s-");
+const checked = host => [...host.querySelectorAll("input:checked")].map(i => i.value);
+function togglePick(id) { const i = state.picks.indexOf(id); i >= 0 ? state.picks.splice(i, 1) : state.picks.push(id); renderHub(); }
+$("#lk-clear").addEventListener("click", () => { state.picks = []; renderHub(); });
+function status(id, msg, kind = "") { const s = $(id); s.textContent = msg; s.className = "status " + kind; }
+
+// ---------- On-phone storage (IndexedDB) ----------
+// Everything you add stays in this browser on this device. Nothing is sent anywhere.
+const STORES = ["items", "looks", "feedback", "wears", "photos", "profile", "catalog"];
+const idb = {
+  conn: null,
+  open() {
+    return new Promise((res, rej) => {
+      const r = indexedDB.open("wardrobe-lookbook", 3);
+      r.onupgradeneeded = () => STORES.forEach(s => r.result.objectStoreNames.contains(s) || r.result.createObjectStore(s));
+      // If a newer version of the app opens the database, close this copy and reload so the upgrade can go through.
+      r.onsuccess = () => { this.conn = r.result; this.conn.onversionchange = () => { this.conn.close(); location.reload(); }; res(this); };
+      r.onblocked = () => console.warn("Waiting for an older copy of the app to close");
+      r.onerror = () => rej(r.error);
+    });
+  },
+  tx(store, mode, fn) {
+    return new Promise((res, rej) => {
+      const t = this.conn.transaction(store, mode);
+      const req = fn(t.objectStore(store));
+      t.oncomplete = () => res(req?.result);
+      t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+    });
+  },
+  get(store, key) { return this.tx(store, "readonly", s => s.get(key)); },
+  put(store, key, val) { return this.tx(store, "readwrite", s => s.put(val, key)); },
+  del(store, key) { return this.tx(store, "readwrite", s => s.delete(key)); },
+  clear(store) { return this.tx(store, "readwrite", s => s.clear()); },
+  async all(store) {
+    const [keys, vals] = await Promise.all([this.tx(store, "readonly", s => s.getAllKeys()), this.tx(store, "readonly", s => s.getAll())]);
+    return keys.map((k, i) => [k, vals[i]]);
+  },
+};
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+let photoURL = {};
+
+async function reload() {
+  const [items, looks, fb, wears, photos, profile, catalog] = await Promise.all(STORES.map(s => idb.all(s)));
+  personal = Object.fromEntries(profile).personal || null;
+  const old = photoURL;
+  photoURL = Object.fromEntries(photos.map(([k, b]) => [k, URL.createObjectURL(b)]));
+  const c = Object.fromEntries(catalog).main || {};
+  ITEMS = (c.items || []).map(r => ({ ...r, id: "i" + r.n, img: photoURL[r.photo] || "img/placeholder.svg" }));
+  LOOKS = c.looks || []; FORMULAS = c.formulas || []; GAPS = c.gaps || {};
+  state.ready = true;
+  state.customItems = items.map(([id, x]) => ({ id, n: 0, custom: true, name: x.name, cat: x.cat, color: x.color, weight: x.weight, style: x.style || ["casual"], seasons: x.seasons || [], desc: "", photo: x.photo, img: (x.photo && photoURL[x.photo]) || "img/placeholder.svg" }));
+  state.customLooks = looks.map(([id, x]) => ({ id, name: x.name, occ: x.occ, seasons: x.seasons || [], notes: x.notes, vibe: "", items: x.items || [], builtIn: false }));
+  state.feedback = Object.fromEntries(fb);
+  state.wears = wears.map(([, w]) => w);
+  render();
+  setTimeout(() => Object.values(old).forEach(u => URL.revokeObjectURL(u)), 1000);
+}
+
+$("#look-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!db) return;
+  const name = $("#lk-name").value.trim(); const seasons = checked($("#lk-seasons"));
+  if (state.picks.length < 2) return status("#lk-status", "Pick at least two pieces for a look.", "err");
+  if (!seasons.length) return status("#lk-status", "Tick at least one season.", "err");
+  status("#lk-status", "Saving…");
+  try {
+    await idb.put("looks", newId(), { name, occ: $("#lk-occ").value, seasons, notes: $("#lk-notes").value.trim(), items: state.picks.slice(), createdAt: Date.now() });
+    state.picks = []; e.target.reset();
+    await reload();
+    status("#lk-status", "Saved " + name + ".", "ok");
+  } catch (err) { status("#lk-status", errMsg(err), "err"); }
+});
+
+// Phone photos are large; shrink to 1000px on the long side before saving.
+async function shrink(file) {
+  try {
+    const bmp = await createImageBitmap(file);
+    const k = Math.min(1, 1000 / Math.max(bmp.width, bmp.height));
+    const c = document.createElement("canvas");
+    c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    return await new Promise(r => c.toBlob(b => r(b || file), "image/jpeg", 0.85));
+  } catch { return file; }
+}
+
+$("#item-form").addEventListener("submit", async e => {
+  e.preventDefault();
+  if (!db) return;
+  const name = $("#it-name").value.trim(); const seasons = checked($("#it-seasons"));
+  if (!seasons.length) return status("#it-status", "Tick at least one season.", "err");
+  const file = $("#it-photo").files[0];
+  status("#it-status", "Saving…");
+  try {
+    let photo = null;
+    if (file) { photo = newId(); await idb.put("photos", photo, await shrink(file)); }
+    await idb.put("items", newId(), { name, cat: $("#it-cat").value, color: $("#it-color").value.trim(), weight: $("#it-weight").value, style: [$("#it-style").value], seasons, photo, createdAt: Date.now() });
+    e.target.reset();
+    await reload();
+    status("#it-status", "Added " + name + " to your closet.", "ok");
+  } catch (err) { status("#it-status", errMsg(err), "err"); }
+});
+function errMsg(err) {
+  if (err?.name === "QuotaExceededError") return "Your phone is out of space for this app. Remove a few added pieces and try again.";
+  return "Couldn't save. Close and reopen the app, then try again.";
+}
+
+// ---------- Feedback & wear log ----------
+async function rate(lk, rating) {
+  const prev = state.feedback[lk.id] || {};
+  try { await idb.put("feedback", lk.id, { ...prev, look: lk.id, name: lk.name, rating, at: Date.now() }); await reload(); } catch (err) { console.warn(err); }
+}
+async function saveNote(lk, note) {
+  const prev = state.feedback[lk.id] || {};
+  try { await idb.put("feedback", lk.id, { ...prev, look: lk.id, name: lk.name, note, at: Date.now() }); await reload(); } catch (err) { console.warn(err); }
+}
+async function logWear(lk) {
+  try { await idb.put("wears", newId(), { look: lk.id, name: lk.name, at: Date.now() }); await reload(); } catch (err) { console.warn(err); }
+}
+async function deleteLook(lk) {
+  if (!confirm("Delete the look \"" + lk.name + "\"?")) return;
+  try { await idb.del("looks", lk.id); await reload(); } catch (err) { console.warn(err); }
+}
+async function deleteItem(it) {
+  if (!confirm("Remove " + it.name + " from your closet?")) return;
+  try { await idb.del("items", it.id); if (it.photo) await idb.del("photos", it.photo); await reload(); } catch (err) { console.warn(err); }
+}
+
+// ---------- Backup & restore ----------
+const blobToDataURL = b => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(b); });
+function showLastBackup() {
+  let t = null; try { t = localStorage.getItem("wl-last-backup"); } catch {}
+  $("#bk-last").textContent = t ? "Last backup: " + new Date(+t).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "No backup saved yet.";
+}
+$("#bk-save").addEventListener("click", async () => {
+  status("#bk-status", "Preparing backup…");
+  try {
+    const data = {};
+    for (const s of STORES.filter(s => s !== "photos")) data[s] = await idb.all(s);
+    data.photos = await Promise.all((await idb.all("photos")).map(async ([k, b]) => [k, await blobToDataURL(b)]));
+    const name = "wardrobe-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+    const blob = new Blob([JSON.stringify({ app: "wardrobe-lookbook", version: 1, savedAt: new Date().toISOString(), data })], { type: "application/json" });
+    const file = new File([blob], name, { type: "application/json" });
+    let done = false;
+    if (navigator.canShare?.({ files: [file] })) {
+      try { await navigator.share({ files: [file], title: name }); done = true; }
+      catch (err) { if (err.name === "AbortError") return status("#bk-status", "Backup cancelled."); }
+    }
+    if (!done) {
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+      document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+    }
+    try { localStorage.setItem("wl-last-backup", String(Date.now())); } catch {}
+    showLastBackup();
+    status("#bk-status", "Backup saved as " + name + ".", "ok");
+  } catch (err) { console.warn(err); status("#bk-status", "Couldn't make the backup. Try again.", "err"); }
+});
+$("#bk-file").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = "";
+  if (!f) return;
+  try {
+    const json = JSON.parse(await f.text());
+    if (json?.app !== "wardrobe-lookbook" || !json.data) return status("#bk-status", "That file isn't a Wardrobe Lookbook backup.", "err");
+    if (!confirm("Restore this backup from " + new Date(json.savedAt).toLocaleDateString() + "? It replaces everything you've added on this phone.")) return;
+    status("#bk-status", "Restoring…"); status("#wf-status", "Restoring…");
+    // Older backups have no wardrobe catalog; keep the one already on the phone in that case.
+    const hasCatalog = Array.isArray(json.data.catalog) && json.data.catalog.length > 0;
+    for (const s of STORES.filter(s => s !== "photos" && (s !== "catalog" || hasCatalog))) await idb.clear(s);
+    if (hasCatalog) await idb.clear("photos");
+    else for (const [k] of await idb.all("photos")) if (!String(k).startsWith("cat-")) await idb.del("photos", k);
+    for (const s of STORES.filter(s => s !== "photos")) for (const [k, v] of json.data[s] || []) await idb.put(s, k, v);
+    for (const [k, url] of json.data.photos || []) await idb.put("photos", k, await (await fetch(url)).blob());
+    await reload(); showWardrobeFile();
+    status("#bk-status", "Backup restored.", "ok"); status("#wf-status", "");
+  } catch (err) { console.warn(err); status("#bk-status", "Couldn't read that backup file.", "err"); }
+});
+
+// ---------- Private wardrobe file ----------
+// wardrobe-data.json carries your pieces, photos, looks and colour guide. It never goes online:
+// you load it on the phone and it is copied into on-phone storage. Loading a newer file replaces
+// the catalog but keeps the pieces, looks, ratings and wear log you added in the app.
+function showWardrobeFile() {
+  const parts = [ITEMS.length + " pieces", LOOKS.length + " looks"].concat(personal ? ["your colour guide"] : []);
+  $("#pf-state").textContent = ITEMS.length ? "On this phone: " + parts.join(", ") + "." : "No wardrobe file loaded yet.";
+}
+async function loadWardrobeFile(f) {
+  const say = (msg, kind) => { status("#pf-status", msg, kind); status("#wf-status", msg, kind); };
+  try {
+    const json = JSON.parse(await f.text());
+    const isData = json?.app === "wardrobe-lookbook-data" && Array.isArray(json.items) && Array.isArray(json.looks);
+    const isPersonal = json?.app === "wardrobe-lookbook-personal";
+    if (!isData && !isPersonal) return say("That file isn't a Wardrobe Lookbook wardrobe file.", "err");
+    say("Loading…");
+    if (isData) {
+      for (const [k] of await idb.all("photos")) if (String(k).startsWith("cat-")) await idb.del("photos", k);
+      for (const [k, url] of Object.entries(json.photos || {})) await idb.put("photos", k, await (await fetch(url)).blob());
+      await idb.put("catalog", "main", { items: json.items, looks: json.looks, formulas: json.formulas || [], gaps: json.gaps || {}, loadedAt: Date.now() });
+    }
+    if (Array.isArray(json.colourTips)) {
+      const { colourTips, colourGaps = "", undertone = "", lookVibes = {} } = json;
+      await idb.put("profile", "personal", { colourTips, colourGaps, undertone, lookVibes });
+    }
+    await reload(); showWardrobeFile();
+    say("Loaded. You can delete the file from your phone now. Save a backup in the Hub to keep a copy.", "ok");
+  } catch (err) {
+    console.warn(err);
+    say(err?.name === "QuotaExceededError" ? "Your phone is out of space for this app." : "Couldn't read that file.", "err");
+  }
+}
+for (const id of ["#pf-file", "#wf-file"]) $(id).addEventListener("change", e => { const f = e.target.files[0]; e.target.value = ""; if (f) loadWardrobeFile(f); });
+
+// ---------- Boot ----------
+(function boot() {
+  let v = (location.hash || "").slice(1);
+  if (!["today", "seasons", "closet", "hub"].includes(v)) { try { v = localStorage.getItem("wl-view") || "today"; } catch { v = "today"; } }
+  setView(["today", "seasons", "closet", "hub"].includes(v) ? v : "today");
+  showLastBackup();
+})();
+
+(async () => {
+  try {
+    db = await idb.open();
+    navigator.storage?.persist?.().catch(() => {});
+    await reload(); showWardrobeFile();
+  } catch (err) { console.warn(err); db = null; state.ready = true; render(); }
+})();
+
+if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(err => console.warn(err)));
+</script>
+
+</body>
+</html>
